@@ -2142,12 +2142,12 @@
       const requestedLegalDocument = window.location.hash.slice(1) || "support";
       const hasPublicRoute = Boolean(publicID || cancellationToken || reviewCode);
       document.title = reviewCode
-        ? "Bewertung | Haviko"
+        ? "Bewertung - Haviko"
         : cancellationToken
-          ? "Reservierung verwalten | Haviko"
+          ? "Reservierung verwalten - Haviko"
           : publicID
-            ? "Tisch reservieren | Haviko"
-            : "Support | Haviko";
+            ? "Tisch reservieren - Haviko"
+            : "Support - Haviko";
       let siteStarted = false;
       let previewUnlocked = false;
 
