@@ -8,6 +8,7 @@
   <meta name="description" content="Haviko verbindet Restaurantbetrieb, Reservierungen, Tische, Bestellungen und Team in einem Arbeitsbereich.">
   <meta name="application-name" content="Haviko">
   <meta name="apple-mobile-web-app-title" content="Haviko">
+  <meta name="apple-itunes-app" content="app-id=6794772408, app-argument=https://support.haviko.de/">
   <link rel="preconnect" href="https://dlapwemckfhxklytbqkk.supabase.co" crossorigin>
   <link rel="dns-prefetch" href="//dlapwemckfhxklytbqkk.supabase.co">
   <meta name="theme-color" content="#00866a">
@@ -17,6 +18,19 @@
   <link rel="shortcut icon" type="image/png" href="./assets/favicon-48.png?v=7">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png?v=7">
   <link rel="manifest" href="./site.webmanifest?v=7">
+  <script>
+    (() => {
+      const hasAccess = document.cookie
+        .split(";")
+        .map((value) => value.trim())
+        .some((value) => value === "haviko_preview_access=granted");
+      if (!hasAccess && window.location.hostname !== "localhost") {
+        window.location.replace(
+          `https://autorisieren.haviko.de/?next=${encodeURIComponent(window.location.href)}`
+        );
+      }
+    })();
+  </script>
   <title>Haviko | Restaurantsoftware</title>
   <style>
     :root {
@@ -1558,7 +1572,6 @@
       </form>
 
       <section class="confirmation hidden" id="confirmation" aria-live="polite">
-        <div class="confirmation-mark" aria-hidden="true">✓</div>
         <h2 id="confirmation-title">Reservierung eingegangen</h2>
         <div class="confirmation-code" id="confirmation-code"></div>
         <p id="confirmation-message"></p>
@@ -1571,7 +1584,6 @@
       </section>
 
       <section class="confirmation hidden" id="cancellation-manager" aria-live="polite">
-        <div class="confirmation-mark" aria-hidden="true">i</div>
         <h2 id="cancellation-title">Reservierung verwalten</h2>
         <div class="confirmation-code" id="cancellation-code"></div>
         <div class="review-block">
@@ -1587,7 +1599,6 @@
       </section>
 
       <section class="confirmation hidden" id="review-manager" aria-live="polite">
-        <div class="confirmation-mark" aria-hidden="true">★</div>
         <h2 id="review-title">Wie war dein Besuch?</h2>
         <div class="confirmation-code" id="review-code"></div>
         <p>Deine Rückmeldung geht direkt an das Restaurant.</p>
@@ -2895,7 +2906,13 @@
 
       function hasStoredDashboardSession() {
         try {
-          const session = JSON.parse(localStorage.getItem("servora-web-session") || "null");
+          const item = document.cookie
+            .split(";")
+            .map((value) => value.trim())
+            .find((value) => value.startsWith("haviko_web_session="));
+          const session = JSON.parse(
+            item ? decodeURIComponent(item.slice("haviko_web_session=".length)) : "null"
+          );
           return Boolean(session?.access_token || session?.refresh_token);
         } catch {
           return false;
@@ -2912,7 +2929,7 @@
       async function start() {
         if (!hasPublicRoute) {
           if (!requestedLegalDocument && hasStoredDashboardSession()) {
-            window.location.replace("https://login.haviko.de/");
+            window.location.replace("https://dashboard.haviko.de/");
             return;
           }
           showLandingPage();
@@ -3017,10 +3034,17 @@
 
       updateOnlineStatus();
 
-      if (!DEVELOPMENT_MODE) {
+      const hasSharedPreviewAccess = document.cookie
+        .split(";")
+        .map((value) => value.trim())
+        .some((value) => value === "haviko_preview_access=granted");
+
+      if (!DEVELOPMENT_MODE || hasSharedPreviewAccess) {
         openDevelopmentPreview();
       } else {
-        $("development-pin").focus();
+        window.location.replace(
+          `https://autorisieren.haviko.de/?next=${encodeURIComponent(window.location.href)}`
+        );
       }
     })();
   </script>
