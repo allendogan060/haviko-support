@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a5a49">
+  <title>Haviko Support</title>
+  <meta name="description" content="Hilfe-Center für Haviko: frag Haviki, unseren KI-Assistenten, oder schreib direkt unserem Team.">
+  <link rel="icon" type="image/png" href="./assets/favicon-32.png">
+  <style>
+    :root {
+      color-scheme: light;
+      --forest: #0a5a49;
+      --forest-deep: #063c32;
+      --action: #087966;
+      --bg: #f4f6f5;
+      --card: #ffffff;
+      --muted: #5c6d66;
+      --border: #e1e8e5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: #10231c;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    header.topbar {
+      background: var(--forest);
+      color: #fff;
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header.topbar a.brand {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 17px;
+    }
+    .hero {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 52px 22px 28px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 32px; margin: 0 0 10px; }
+    .hero p { color: var(--muted); font-size: 16px; margin: 0; }
+    .cards {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 8px 22px 50px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 680px) { .cards { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 26px;
+    }
+    .card h2 { margin: 0 0 8px; font-size: 19px; }
+    .card p { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+    .card button.primary, button.primary {
+      background: var(--action);
+      color: #fff;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+    }
+    .card button.primary:hover { background: var(--forest); }
+    .card-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: rgba(8,121,102,0.1);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+      font-size: 22px;
+    }
+    form.contact-form { display: none; margin-top: 18px; flex-direction: column; gap: 10px; }
+    form.contact-form.visible { display: flex; }
+    form.contact-form input, form.contact-form textarea {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      width: 100%;
+    }
+    form.contact-form textarea { min-height: 100px; resize: vertical; }
+    .notice { font-size: 13px; padding: 10px 12px; border-radius: 10px; margin-top: 10px; }
+    .notice.success { background: #e6f4ef; color: var(--forest-deep); }
+    .notice.error { background: #fde8e6; color: #a3231b; }
+    .notice[hidden] { display: none; }
+
+    dialog.chat-dialog {
+      border: none;
+      border-radius: 20px;
+      padding: 0;
+      width: min(94vw, 420px);
+      height: min(82vh, 640px);
+      overflow: hidden;
+    }
+    dialog.chat-dialog::backdrop { background: rgba(6,25,20,0.4); }
+    .chat-shell { display: flex; flex-direction: column; height: 100%; }
+    .chat-header {
+      background: var(--forest);
+      color: #fff;
+      padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .chat-header strong { font-size: 16px; }
+    .chat-header button { background: none; border: 0; color: #fff; font-size: 20px; cursor: pointer; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-msg { max-width: 85%; padding: 10px 13px; border-radius: 14px; font-size: 14px; white-space: pre-line; }
+    .chat-msg.user { align-self: flex-end; background: var(--action); color: #fff; border-bottom-right-radius: 4px; }
+    .chat-msg.assistant { align-self: flex-start; background: #eef2f0; color: #10231c; border-bottom-left-radius: 4px; }
+    .chat-empty { color: var(--muted); font-size: 14px; text-align: center; padding: 20px; }
+    .email-confirm { border: 1px dashed var(--action); border-radius: 12px; padding: 12px; font-size: 13px; }
+    .email-confirm button { margin-top: 8px; }
+    .chat-compose { border-top: 1px solid var(--border); padding: 10px; display: flex; gap: 8px; }
+    .chat-compose input { flex: 1; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+    .chat-compose button { background: var(--action); color: #fff; border: 0; border-radius: 10px; padding: 0 16px; font-weight: 700; cursor: pointer; }
+    .chat-email-field { padding: 0 10px 8px; }
+    .chat-email-field input { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font-size: 12px; }
+
+    footer.site-footer { text-align: center; padding: 30px 22px 40px; color: var(--muted); font-size: 13px; }
+    footer.site-footer a { color: var(--muted); margin: 0 8px; text-decoration: none; }
+    footer.site-footer a:hover { color: var(--forest-deep); }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="https://haviko.de/">Haviko</a>
+  </header>
+
+  <section class="hero">
+    <h1>Wie können wir helfen?</h1>
+    <p>Frag Haviki, unseren KI-Assistenten, oder schreib direkt unserem Support-Team.</p>
+  </section>
+
+  <section class="cards">
+    <div class="card">
+      <div class="card-icon">🤖</div>
+      <h2>Mit Haviki chatten</h2>
+      <p>Unser KI-Assistent kennt sich mit der Restaurant-App und dem Gastportal aus und hilft sofort weiter — rund um die Uhr.</p>
+      <button class="primary" id="open-chat" type="button">Chat öffnen</button>
+    </div>
+    <div class="card">
+      <div class="card-icon">✉️</div>
+      <h2>Team kontaktieren</h2>
+      <p>Lieber direkt mit einem Menschen sprechen? Schreib uns, wir melden uns per E-Mail zurück.</p>
+      <button class="primary" id="open-form" type="button">Nachricht schreiben</button>
+      <form class="contact-form" id="contact-form">
+        <input type="text" id="cf-name" placeholder="Dein Name (optional)" autocomplete="name">
+        <input type="email" id="cf-email" placeholder="Deine E-Mail-Adresse" autocomplete="email">
+        <input type="text" id="cf-subject" placeholder="Worum geht's?" required>
+        <textarea id="cf-message" placeholder="Deine Nachricht" required></textarea>
+        <button class="primary" type="submit">Senden</button>
+        <p class="notice success" id="cf-success" hidden>Danke! Wir melden uns so schnell wie möglich per E-Mail.</p>
+        <p class="notice error" id="cf-error" hidden></p>
+      </form>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div>
+      <a href="https://haviko.de/impressum/">Impressum</a>
+      <a href="https://haviko.de/datenschutz/">Datenschutz</a>
+      <a href="https://haviko.de/nutzungsbedingungen/">Nutzungsbedingungen</a>
+    </div>
+    <p style="margin-top:10px;">Haviko</p>
+  </footer>
+
+  <dialog class="chat-dialog" id="chat-dialog" aria-labelledby="chat-title">
+    <div class="chat-shell">
+      <div class="chat-header">
+        <strong id="chat-title">Haviki</strong>
+        <button type="button" id="close-chat" aria-label="Schließen">×</button>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-empty">Hallo, ich bin Haviki! Erzähl mir kurz, worum es geht — ich helfe direkt weiter oder bereite eine Nachricht an unser Team vor.</div>
+      </div>
+      <div class="chat-email-field">
+        <input type="email" id="chat-email" placeholder="Deine E-Mail-Adresse, falls wir zurückschreiben sollen (optional)">
+      </div>
+      <form class="chat-compose" id="chat-form">
+        <input type="text" id="chat-input" placeholder="Nachricht an Haviki…" autocomplete="off">
+        <button type="submit">Senden</button>
+      </form>
+    </div>
+  </dialog>
+
+  <script>
+    const SUPABASE_URL = "https://dlapwemckfhxklytbqkk.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_VeeQLARNn-sULZ4snvp3HA_Hd78H5RN";
+    const $ = (id) => document.getElementById(id);
+
+    // ==========================================================================
+    // Anonymous session for the Haviki chat - support.haviko.de is a public
+    // page with no Haviko account required, but the haviko-chat edge
+    // function needs a valid Supabase session either way, so a fresh
+    // anonymous one is created (and cached per browser tab) instead of
+    // requiring sign-in just to ask a question.
+    // ==========================================================================
+    async function getAnonymousAccessToken() {
+      const cached = sessionStorage.getItem("haviko_support_anon_token");
+      if (cached) return cached;
+      const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+        method: "POST",
+        headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+        body: "{}",
+      });
+      if (!response.ok) throw new Error("Chat ist gerade nicht erreichbar.");
+      const data = await response.json();
+      if (!data.access_token) throw new Error("Chat ist gerade nicht erreichbar.");
+      sessionStorage.setItem("haviko_support_anon_token", data.access_token);
+      return data.access_token;
+    }
+
+    async function sendSupportEmail(payload) {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/support-email`, {
+        method: "POST",
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.error) throw new Error(result.error || "Senden fehlgeschlagen.");
+      return result;
+    }
+
+    // ==========================================================================
+    // Contact form
+    // ==========================================================================
+    $("open-form").addEventListener("click", () => {
+      $("contact-form").classList.toggle("visible");
+    });
+
+    $("contact-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      $("cf-error").hidden = true;
+      $("cf-success").hidden = true;
+      const button = event.target.querySelector("button[type=submit]");
+      button.disabled = true;
+      try {
+        await sendSupportEmail({
+          subject: $("cf-subject").value.trim(),
+          message: $("cf-message").value.trim(),
+          senderName: $("cf-name").value.trim(),
+          senderEmail: $("cf-email").value.trim(),
+          source: "form",
+        });
+        $("cf-success").hidden = false;
+        event.target.reset();
+      } catch (error) {
+        $("cf-error").textContent = error.message || "Senden fehlgeschlagen. Bitte versuch es erneut.";
+        $("cf-error").hidden = false;
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    // ==========================================================================
+    // Haviki chat
+    // ==========================================================================
+    const chatDialog = $("chat-dialog");
+    const chatMessagesEl = $("chat-messages");
+    let chatHistory = [];
+    let chatSending = false;
+
+    $("open-chat").addEventListener("click", () => chatDialog.showModal());
+    $("close-chat").addEventListener("click", () => chatDialog.close());
+
+    function renderChatMessages() {
+      if (chatHistory.length === 0) {
+        chatMessagesEl.innerHTML = '<div class="chat-empty">Hallo, ich bin Haviki! Erzähl mir kurz, worum es geht — ich helfe direkt weiter oder bereite eine Nachricht an unser Team vor.</div>';
+        return;
+      }
+      chatMessagesEl.innerHTML = chatHistory.map((message, index) => {
+        if (message.emailDraft) {
+          return `<div class="chat-msg assistant">${escapeHTML(message.displayText)}</div>
+            <div class="email-confirm" data-index="${index}">
+              <strong>${escapeHTML(message.emailDraft.subject)}</strong>
+              <p style="white-space:pre-line;margin:6px 0;">${escapeHTML(message.emailDraft.text)}</p>
+              ${message.emailDraft.sent
+                ? '<span style="color:#087966;">✓ Gesendet</span>'
+                : '<button type="button" class="primary send-draft-btn" data-index="' + index + '">Jetzt an Haviko senden</button>'}
+            </div>`;
+        }
+        return `<div class="chat-msg ${message.role}">${escapeHTML(message.content)}</div>`;
+      }).join("");
+      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+      for (const button of chatMessagesEl.querySelectorAll(".send-draft-btn")) {
+        button.addEventListener("click", () => sendDraftedEmail(Number(button.dataset.index)));
+      }
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+      })[ch]);
+    }
+
+    async function sendDraftedEmail(index) {
+      const message = chatHistory[index];
+      if (!message?.emailDraft || message.emailDraft.sent) return;
+      try {
+        await sendSupportEmail({
+          subject: message.emailDraft.subject,
+          message: message.emailDraft.text,
+          senderEmail: $("chat-email").value.trim(),
+          source: "chat",
+        });
+        message.emailDraft.sent = true;
+        renderChatMessages();
+      } catch (error) {
+        alert(error.message || "Senden fehlgeschlagen. Bitte versuch es erneut.");
+      }
+    }
+
+    function extractEmailDraft(reply) {
+      const match = reply.match(/===EMAIL===\s*Betreff:\s*(.+?)\s*Text:\s*([\s\S]+?)\s*===ENDEMAIL===/i);
+      if (!match) return null;
+      const before = reply.slice(0, match.index).trim();
+      return { before, subject: match[1].trim(), text: match[2].trim() };
+    }
+
+    $("chat-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (chatSending) return;
+      const input = $("chat-input");
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      chatHistory.push({ role: "user", content: text });
+      renderChatMessages();
+      chatSending = true;
+      try {
+        const accessToken = await getAnonymousAccessToken();
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/haviko-chat`, {
+          method: "POST",
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: chatHistory.map((m) => ({ role: m.role, content: m.emailDraft ? m.displayText : m.content })),
+            audience: "staff",
+            isSupport: true,
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok || result.error) throw new Error(result.error || "Haviki konnte nicht antworten.");
+        const draft = extractEmailDraft(result.reply || "");
+        if (draft) {
+          chatHistory.push({ role: "assistant", displayText: draft.before, emailDraft: { subject: draft.subject, text: draft.text, sent: false } });
+        } else {
+          chatHistory.push({ role: "assistant", content: result.reply || "…" });
+        }
+      } catch (error) {
+        chatHistory.push({ role: "assistant", content: error.message || "Haviki konnte nicht antworten. Bitte versuche es später erneut." });
+      } finally {
+        chatSending = false;
+        renderChatMessages();
+      }
+    });
+  </script>
+</body>
+</html>
